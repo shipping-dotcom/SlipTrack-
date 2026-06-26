@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SlipTrack — Inventory Document Manager</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -20,8 +20,21 @@
   --mono:'JetBrains Mono','Fira Code',monospace;
 }
 body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh;}
-
-/* Topbar */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:48px 40px;text-align:center;max-width:400px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+.login-logo{width:52px;height:52px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.login-logo svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.login-title{font-size:22px;font-weight:700;margin-bottom:6px;}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.login-input{width:100%;height:42px;padding:0 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:14px;outline:none;margin-bottom:10px;text-align:center;}
+.login-input:focus{border-color:var(--accent);}
+.login-btn{width:100%;height:42px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;margin-bottom:10px;}
+.login-btn:hover{background:#1E4DB0;}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;}
+.login-error{background:var(--red-bg);border:1px solid #FECDC9;border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:10px;display:none;}
+.login-note{font-size:11px;color:var(--faint);margin-top:8px;}
+.login-back{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;margin-top:8px;font-family:var(--font);}
+.login-back:hover{text-decoration:underline;}
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;height:56px;position:sticky;top:0;z-index:100;}
 .logo{display:flex;align-items:center;gap:9px;font-weight:600;font-size:15px;letter-spacing:-.01em;text-decoration:none;color:var(--text);}
 .logo-sq{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;}
@@ -35,19 +48,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 .admin-pill{display:none;align-items:center;gap:6px;padding:4px 10px;background:var(--accent-bg);border-radius:20px;border:1px solid #9DBAF5;font-size:12px;color:var(--accent-text);font-weight:500;}
 .admin-pill.show{display:flex;}
+.user-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--bg);border-radius:20px;border:1px solid var(--border);font-size:12px;color:var(--muted);}
 .signout-btn{background:none;border:none;cursor:pointer;font-size:11px;color:var(--faint);padding:2px 4px;font-family:var(--font);}
 .signout-btn:hover{color:var(--red);}
-
-/* Layout */
 .wrap{max-width:1180px;margin:0 auto;padding:28px 24px;display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;}
 @media(max-width:860px){.wrap{grid-template-columns:1fr;}}
-
-/* Card */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;}
 .card-hd{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
 .card-title{font-size:14px;font-weight:600;}
-
-/* Toolbar */
 .toolbar{padding:10px 20px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .sw{position:relative;flex:1;min-width:160px;}
 .sw svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--faint);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
@@ -55,18 +63,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .si:focus{border-color:var(--accent);}
 .si::placeholder{color:var(--faint);}
 select.fl{height:34px;padding:0 26px 0 9px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:13px;background:var(--bg);color:var(--text);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 11 11'%3E%3Cpath fill='none' stroke='%23A09E98' stroke-width='1.5' stroke-linecap='round' d='M2 4L5.5 7.5 9 4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
-
-/* Buttons */
 .btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:var(--r);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:background .12s;white-space:nowrap;}
 .btn:hover{background:var(--bg);}
 .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
 .btn-p{background:var(--accent);color:#fff;border-color:var(--accent);}
-.btn-p:hover{background:#1E4DB0;border-color:#1E4DB0;}
+.btn-p:hover{background:#1E4DB0;}
 .btn-sm{height:28px;padding:0 10px;font-size:12px;}
 .btn-d{color:var(--red);border-color:#FECDC9;}
 .btn-d:hover{background:var(--red-bg);}
-
-/* Table */
 table{width:100%;border-collapse:collapse;}
 thead th{padding:8px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap;}
 tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
@@ -76,8 +80,6 @@ tbody tr.sel{background:var(--accent-bg);}
 td{padding:9px 16px;font-size:13px;white-space:nowrap;}
 .td-j{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent);}
 .td-m{color:var(--muted);}
-
-/* Badges */
 .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;}
 .bg-g{background:var(--green-bg);color:var(--green);}
 .bg-a{background:var(--amber-bg);color:var(--amber);}
@@ -88,14 +90,10 @@ td{padding:9px 16px;font-size:13px;white-space:nowrap;}
 .doc-ok.bol{color:var(--purple);}
 .doc-ms{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--amber);font-weight:500;}
 .doc-ok svg,.doc-ms svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
-
-/* Empty */
 .empty{padding:48px 20px;text-align:center;color:var(--muted);}
 .empty svg{width:36px;height:36px;stroke:var(--border2);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 12px;display:block;}
 .empty p{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px;}
 .loading-row td{text-align:center;padding:32px;color:var(--muted);font-size:13px;}
-
-/* Detail */
 .ph{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:48px 24px;text-align:center;color:var(--muted);}
 .ph svg{width:32px;height:32px;stroke:var(--border2);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 10px;display:block;}
 .ph p{font-size:13px;}
@@ -103,8 +101,6 @@ td{padding:9px 16px;font-size:13px;white-space:nowrap;}
 .ml{font-size:11px;color:var(--faint);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
 .mv{font-size:13px;font-weight:500;color:var(--text);}
 .mv-m{font-family:var(--mono);font-size:12px;}
-
-/* Doc sections */
 .doc-sect{padding:14px 20px;border-top:1px solid var(--border);}
 .doc-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:.03em;margin-bottom:10px;display:inline-block;}
 .doc-tag.slip{background:var(--green-bg);color:var(--green);}
@@ -129,8 +125,6 @@ input[type=file]{display:none;}
 .spin{width:15px;height:15px;border:2px solid #C8D9F8;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .det-acts{display:flex;gap:8px;padding:12px 20px;border-top:1px solid var(--border);flex-wrap:wrap;}
-
-/* Modal */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;padding:20px;}
 .modal-bg.open{display:flex;}
 .modal{background:var(--surface);border-radius:var(--rl);border:1px solid var(--border);width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.15);}
@@ -147,16 +141,12 @@ input[type=file]{display:none;}
 .fg input,.fg select{height:36px;padding:0 10px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:13px;background:var(--surface);color:var(--text);outline:none;}
 .fg input:focus,.fg select:focus{border-color:var(--accent);}
 .fg select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 11 11'%3E%3Cpath fill='none' stroke='%23A09E98' stroke-width='1.5' stroke-linecap='round' d='M2 4L5.5 7.5 9 4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px;}
-
-/* Admin unlock modal */
 .unlock-modal{background:var(--surface);border-radius:var(--rl);border:1px solid var(--border);width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:28px 24px;text-align:center;}
 .unlock-modal h3{font-size:16px;font-weight:600;margin-bottom:6px;}
 .unlock-modal p{font-size:13px;color:var(--muted);margin-bottom:18px;}
-.unlock-input{width:100%;height:40px;padding:0 12px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:14px;text-align:center;letter-spacing:.05em;outline:none;margin-bottom:12px;}
+.unlock-input{width:100%;height:40px;padding:0 12px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--font);font-size:14px;text-align:center;outline:none;margin-bottom:12px;}
 .unlock-input:focus{border-color:var(--accent);}
 .unlock-error{font-size:12px;color:var(--red);margin-bottom:12px;display:none;}
-
-/* Toast */
 .toast-c{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:300;}
 .toast{background:var(--text);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;animation:tin .2s ease;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:300px;}
 .toast.ok{background:var(--green);}
@@ -165,33 +155,27 @@ input[type=file]{display:none;}
 .toast svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
 @keyframes tin{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 </style>
-/* Login */
-.login-screen{display:none;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--bg);}
-.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:48px 40px;text-align:center;max-width:380px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08);}
-.login-logo{width:52px;height:52px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
-.login-logo svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.login-title{font-size:22px;font-weight:700;margin-bottom:6px;}
-.login-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
-.login-error{background:var(--red-bg);border:1px solid #FECDC9;border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--red);margin-top:14px;display:none;}
-.login-note{font-size:11px;color:var(--faint);margin-top:14px;}
-.g-wrap{display:flex;justify-content:center;}
-#app{display:none;}
 </head>
 <body>
 
-<!-- Login Screen -->
 <div class="login-screen" id="login-screen">
   <div class="login-card">
     <div class="login-logo"><svg viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1.5"/><line x1="5.5" y1="5.5" x2="10.5" y2="5.5"/><line x1="5.5" y1="8" x2="10.5" y2="8"/><line x1="5.5" y1="10.5" x2="8.5" y2="10.5"/></svg></div>
     <div class="login-title">SlipTrack</div>
-    <div class="login-sub">Sign in with your Moquin Press account to access inventory documents</div>
-    <div id="g_id_onload" data-client_id="371418073905-q9732qi3cs82odfpu57ph7kj8lirmive.apps.googleusercontent.com" data-callback="handleCredential" data-auto_prompt="false"></div>
-    <div class="g-wrap"><div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left" data-width="280"></div></div>
+    <div class="login-sub" id="login-sub">Enter your Moquin Press email to receive a verification code</div>
     <div class="login-error" id="login-error"></div>
-    <div class="login-note">Only @moquinpress.com accounts are allowed</div>
+    <input type="email" class="login-input" id="email-input" placeholder="you@moquinpress.com" onkeydown="if(event.key==='Enter')sendCode()">
+    <button class="login-btn" id="send-btn" onclick="sendCode()">Send verification code</button>
+    <div class="login-note">🔒 Only @moquinpress.com accounts are allowed</div>
+    <div id="code-section" style="display:none;">
+      <input type="text" class="login-input" id="code-input" placeholder="Enter 6-digit code" maxlength="6" onkeydown="if(event.key==='Enter')verifyCode()">
+      <button class="login-btn" id="verify-btn" onclick="verifyCode()">Verify & Sign in</button>
+      <button class="login-back" onclick="backToEmail()">← Use a different email</button>
+    </div>
   </div>
 </div>
-<div id="app">
+
+<div id="app" style="display:none;">
 <header class="topbar">
   <a href="#" class="logo">
     <div class="logo-sq"><svg viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1.5"/><line x1="5.5" y1="5.5" x2="10.5" y2="5.5"/><line x1="5.5" y1="8" x2="10.5" y2="8"/><line x1="5.5" y1="10.5" x2="8.5" y2="10.5"/></svg></div>
@@ -205,10 +189,12 @@ input[type=file]{display:none;}
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="8" height="6" rx="1"/><path d="M4 5V3.5a2 2 0 0 1 4 0V5"/></svg>
     Admin mode
     <button class="signout-btn" onclick="lockAdmin()">Lock</button>
-    <button class="signout-btn" onclick="signOut()" style="margin-left:4px;color:var(--red);">Sign out</button>
+  </div>
+  <div class="user-pill" id="user-pill">
+    <span id="user-name"></span>
+    <button class="signout-btn" onclick="signOut()">Sign out</button>
   </div>
 </header>
-
 <main class="wrap">
   <div>
     <div class="card">
@@ -217,8 +203,7 @@ input[type=file]{display:none;}
         <span class="card-title">Inventory jobs</span>
         <span style="margin-left:auto;font-size:12px;color:var(--muted);" id="lc"></span>
         <button class="btn btn-p btn-sm" style="margin-left:8px;display:none;" id="add-job-btn" onclick="openAdd()">
-          <svg viewBox="0 0 14 14"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
-          Add job
+          <svg viewBox="0 0 14 14"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>Add job
         </button>
       </div>
       <div class="toolbar">
@@ -227,40 +212,25 @@ input[type=file]{display:none;}
           <input type="text" class="si" placeholder="Search job #, customer, PO…" id="srch" oninput="renderTable()">
         </div>
         <select class="fl" id="fSlip" onchange="renderTable()">
-          <option value="">All docs</option>
-          <option value="slip">Slip on file</option>
-          <option value="bol">BOL on file</option>
-          <option value="none">Docs missing</option>
+          <option value="">All docs</option><option value="slip">Slip on file</option><option value="bol">BOL on file</option><option value="none">Docs missing</option>
         </select>
         <select class="fl" id="fStat" onchange="renderTable()">
-          <option value="">All status</option>
-          <option>In storage</option>
-          <option>Partial out</option>
-          <option>Awaiting pick</option>
-          <option>Shipped</option>
+          <option value="">All status</option><option>In storage</option><option>Partial out</option><option>Awaiting pick</option><option>Shipped</option>
         </select>
-        <button class="btn btn-sm" onclick="loadJobs()" title="Refresh">
-          <svg viewBox="0 0 14 14"><polyline points="1,4 1,1 4,1"/><path d="M1,1 A6,6,0,1,1,2,10"/></svg>
-        </button>
+        <button class="btn btn-sm" onclick="loadJobs()"><svg viewBox="0 0 14 14"><polyline points="1,4 1,1 4,1"/><path d="M1,1 A6,6,0,1,1,2,10"/></svg></button>
       </div>
       <div style="overflow-x:auto;">
         <table>
-          <thead><tr>
-            <th>Job #</th><th>Customer</th><th>PO</th><th>Received</th><th>Status</th><th>Slip</th><th>BOL</th>
-          </tr></thead>
-          <tbody id="tbody">
-            <tr class="loading-row"><td colspan="7">Loading jobs from Google Sheets…</td></tr>
-          </tbody>
+          <thead><tr><th>Job #</th><th>Customer</th><th>PO</th><th>Received</th><th>Status</th><th>Slip</th><th>BOL</th></tr></thead>
+          <tbody id="tbody"><tr class="loading-row"><td colspan="7">Loading jobs…</td></tr></tbody>
         </table>
       </div>
       <div id="empty" class="empty" style="display:none;">
         <svg viewBox="0 0 36 36"><rect x="6" y="4" width="24" height="28" rx="3"/><line x1="12" y1="13" x2="24" y2="13"/><line x1="12" y1="18" x2="24" y2="18"/><line x1="12" y1="23" x2="18" y2="23"/></svg>
-        <p>No jobs found</p>
-        <span>Try adjusting your search or filters</span>
+        <p>No jobs found</p><span>Try adjusting your search or filters</span>
       </div>
     </div>
   </div>
-
   <div>
     <div class="ph" id="det-ph">
       <svg viewBox="0 0 32 32"><rect x="5" y="3" width="22" height="26" rx="3"/><line x1="10" y1="11" x2="22" y2="11"/><line x1="10" y1="16" x2="22" y2="16"/><line x1="10" y1="21" x2="16" y2="21"/></svg>
@@ -269,43 +239,22 @@ input[type=file]{display:none;}
     <div class="card" id="det-panel" style="display:none;"></div>
   </div>
 </main>
+</div>
 
-</div><!-- end #app -->
-<!-- Add/Edit Modal -->
 <div class="modal-bg" id="modal">
-  <div class="modal" role="dialog" aria-modal="true">
-    <div class="mhd">
-      <span class="mt" id="modal-ttl">Add inventory job</span>
-      <button class="mx" onclick="closeModal()" aria-label="Close"><svg viewBox="0 0 18 18"><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></svg></button>
-    </div>
+  <div class="modal">
+    <div class="mhd"><span class="mt" id="modal-ttl">Add inventory job</span><button class="mx" onclick="closeModal()"><svg viewBox="0 0 18 18"><line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/></svg></button></div>
     <div class="mb">
-      <div class="frow">
-        <div class="fg"><label>Job number *</label><input id="fId" placeholder="e.g. JOB-1050"></div>
-        <div class="fg"><label>PO number</label><input id="fPo" placeholder="e.g. PO-99001"></div>
-      </div>
+      <div class="frow"><div class="fg"><label>Job number *</label><input id="fId" placeholder="e.g. JOB-1050"></div><div class="fg"><label>PO number</label><input id="fPo" placeholder="e.g. PO-99001"></div></div>
       <div class="fg"><label>Customer name *</label><input id="fCust" placeholder="e.g. Hartwell Manufacturing"></div>
-      <div class="frow">
-        <div class="fg"><label>SKU / Part #</label><input id="fSku" placeholder="e.g. HM-4400X"></div>
-        <div class="fg"><label>Quantity</label><input id="fQty" type="number" placeholder="0" min="0"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>Date received</label><input id="fDate" type="date"></div>
-        <div class="fg"><label>Status</label>
-          <select id="fStatus">
-            <option>In storage</option><option>Awaiting pick</option><option>Partial out</option><option>Shipped</option>
-          </select>
-        </div>
-      </div>
+      <div class="frow"><div class="fg"><label>SKU / Part #</label><input id="fSku" placeholder="e.g. HM-4400X"></div><div class="fg"><label>Quantity</label><input id="fQty" type="number" placeholder="0" min="0"></div></div>
+      <div class="frow"><div class="fg"><label>Date received</label><input id="fDate" type="date"></div><div class="fg"><label>Status</label><select id="fStatus"><option>In storage</option><option>Awaiting pick</option><option>Partial out</option><option>Shipped</option></select></div></div>
       <div class="fg"><label>Notes</label><input id="fNotes" placeholder="Optional notes"></div>
     </div>
-    <div class="mf">
-      <button class="btn btn-sm" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-p btn-sm" id="modal-save">Add job</button>
-    </div>
+    <div class="mf"><button class="btn btn-sm" onclick="closeModal()">Cancel</button><button class="btn btn-p btn-sm" id="modal-save">Add job</button></div>
   </div>
 </div>
 
-<!-- Admin Unlock Modal -->
 <div class="modal-bg" id="unlock-modal-bg">
   <div class="unlock-modal">
     <h3>🔐 Admin Access</h3>
@@ -322,416 +271,309 @@ input[type=file]{display:none;}
 <div class="toast-c" id="toasts"></div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbzg8qSWzrfX60IiybWWWWeu212R2P7om0Oywale1dYN5gpDXOqWnmRn4iauG5NxpvK5/exec';
+const API='https://script.google.com/macros/s/AKfycbzg8qSWzrfX60IiybWWWWeu212R2P7om0Oywale1dYN5gpDXOqWnmRn4iauG5NxpvK5/exec';
+const ALLOWED_DOMAIN='moquinpress.com';
+const ADMIN_EMAIL='shipping@moquinpress.com';
+const EMAILJS_SERVICE='service_puw9019';
+const EMAILJS_TEMPLATE='ogf1wk3';
+const EMAILJS_KEY='p9uXjv5tTW4cLeYoQ';
+let jobs=[],sel=null,editId=null,isAdmin=false,currentUser=null;
+let otpCode=null,otpEmail=null,otpExpiry=null;
+emailjs.init(EMAILJS_KEY);
 
-
-let jobs = [], sel = null, editId = null, isAdmin = false, adminToken = null;
-let currentUser = null;
-const ALLOWED_DOMAIN = 'moquinpress.com';
-const ADMIN_EMAIL = 'shipping@moquinpress.com';
-
-// ── Admin unlock ──────────────────────────────────────────────────────────────
-let keyBuffer = '';
-document.addEventListener('keydown', e => {
-  keyBuffer += e.key;
-  if (keyBuffer.length > 20) keyBuffer = keyBuffer.slice(-20);
-  if (keyBuffer.endsWith('admin')) {
-    keyBuffer = '';
-    openUnlock();
+async function sendCode(){
+  const email=document.getElementById('email-input').value.trim().toLowerCase();
+  const domain=email.split('@')[1];
+  const err=document.getElementById('login-error');
+  err.style.display='none';
+  if(!email||!email.includes('@')){err.textContent='Please enter a valid email address.';err.style.display='block';return;}
+  if(domain!==ALLOWED_DOMAIN){err.textContent='⛔ Only @moquinpress.com accounts are allowed.';err.style.display='block';return;}
+  const btn=document.getElementById('send-btn');
+  btn.textContent='Sending…';btn.disabled=true;
+  otpCode=Math.floor(100000+Math.random()*900000).toString();
+  otpEmail=email;
+  otpExpiry=Date.now()+10*60*1000;
+  try{
+    await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{email:email,code:otpCode});
+    document.getElementById('email-input').style.display='none';
+    btn.style.display='none';
+    document.getElementById('login-sub').textContent='We sent a 6-digit code to '+email+'. Enter it below:';
+    document.getElementById('code-section').style.display='block';
+    setTimeout(()=>document.getElementById('code-input').focus(),100);
+  }catch(e){
+    err.textContent='Failed to send code. Please try again.';err.style.display='block';
+    btn.textContent='Send verification code';btn.disabled=false;
   }
-});
-
-function openUnlock() {
-  document.getElementById('unlock-modal-bg').classList.add('open');
-  document.getElementById('unlock-input').value = '';
-  document.getElementById('unlock-error').style.display = 'none';
-  setTimeout(() => document.getElementById('unlock-input').focus(), 60);
 }
 
-function closeUnlock() {
-  document.getElementById('unlock-modal-bg').classList.remove('open');
-}
-
-async function tryUnlock() {
-  const val = document.getElementById("unlock-input").value;
-  if (!val) return;
-  const btn = document.querySelector("#unlock-modal-bg .btn-p");
-  btn.textContent = "Verifying...";
-  btn.disabled = true;
-  try {
-    const result = await api({ action: "verifyAdmin", password: val });
-    if (result.success) {
-      adminToken = result.token;
-      isAdmin = true;
-      sessionStorage.setItem("st_admin", "1");
-      sessionStorage.setItem("st_token", adminToken);
-      closeUnlock();
-      document.getElementById("admin-pill").classList.add("show");
-      document.getElementById("add-job-btn").style.display = "";
-      if (sel) { const j = jobs.find(x => x.id === sel); if (j) renderDetail(j); }
-      toast("Admin mode unlocked", "ok");
-    } else {
-      document.getElementById("unlock-error").style.display = "block";
-      document.getElementById("unlock-input").value = "";
-      document.getElementById("unlock-input").focus();
-    }
-  } catch(e) { toast("Error: " + e.message, "er"); }
-  btn.textContent = "Unlock";
-  btn.disabled = false;
-}
-
-function lockAdmin() {
-  isAdmin = false;
-  adminToken = null;
-  sessionStorage.removeItem("st_admin");
-  sessionStorage.removeItem("st_token");
-  document.getElementById('admin-pill').classList.remove('show');
-  document.getElementById('add-job-btn').style.display = 'none';
-  if (sel) { const j = jobs.find(x => x.id === sel); if (j) renderDetail(j); }
-  toast('Admin mode locked', 'wn');
-}
-
-// ── Google Auth ───────────────────────────────────────────────────────────────
-function parseJwt(token) {
-  const base64 = token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");
-  return JSON.parse(decodeURIComponent(atob(base64).split("").map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join("")));
-}
-
-function handleCredential(response) {
-  const payload = parseJwt(response.credential);
-  const email = payload.email || "";
-  const domain = email.split("@")[1];
-  if (domain !== ALLOWED_DOMAIN) {
-    const err = document.getElementById("login-error");
-    err.textContent = "Access denied. Only @moquinpress.com accounts are allowed.";
-    err.style.display = "block";
-    return;
-  }
-  currentUser = { email, name: payload.name, picture: payload.picture };
-  if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) isAdmin = true;
-  sessionStorage.setItem("st_user", JSON.stringify(currentUser));
-  if (isAdmin) sessionStorage.setItem("st_admin", "1");
+function verifyCode(){
+  const entered=document.getElementById('code-input').value.trim();
+  const err=document.getElementById('login-error');
+  err.style.display='none';
+  if(!otpCode||!otpEmail||!otpExpiry){err.textContent='Session expired. Please start again.';err.style.display='block';return;}
+  if(Date.now()>otpExpiry){err.textContent='Code expired. Please request a new one.';err.style.display='block';backToEmail();return;}
+  if(entered!==otpCode){err.textContent='Incorrect code. Please try again.';err.style.display='block';return;}
+  currentUser={email:otpEmail};
+  if(otpEmail===ADMIN_EMAIL)isAdmin=true;
+  sessionStorage.setItem('st_user',JSON.stringify(currentUser));
+  if(isAdmin)sessionStorage.setItem('st_admin','1');
+  otpCode=null;otpEmail=null;otpExpiry=null;
   showApp();
 }
 
-function showApp() {
-  document.getElementById("login-screen").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  if (isAdmin) {
-    document.getElementById("admin-pill").classList.add("show");
-    document.getElementById("add-job-btn").style.display = "";
-  }
-  loadJobs();
-  setInterval(loadJobs, 30000);
+function backToEmail(){
+  document.getElementById('email-input').style.display='';
+  document.getElementById('send-btn').style.display='';
+  document.getElementById('send-btn').textContent='Send verification code';
+  document.getElementById('send-btn').disabled=false;
+  document.getElementById('code-section').style.display='none';
+  document.getElementById('login-sub').textContent='Enter your Moquin Press email to receive a verification code';
+  document.getElementById('login-error').style.display='none';
+  otpCode=null;otpEmail=null;otpExpiry=null;
 }
 
-function signOut() {
-  sessionStorage.clear();
-  currentUser = null; isAdmin = false; jobs = []; sel = null;
-  document.getElementById("app").style.display = "none";
-  document.getElementById("login-screen").style.display = "flex";
-  document.getElementById("login-error").style.display = "none";
+function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('user-name').textContent=currentUser.email;
+  if(isAdmin){document.getElementById('admin-pill').classList.add('show');document.getElementById('add-job-btn').style.display='';}
+  loadJobs();setInterval(loadJobs,30000);
 }
 
-// Check session on load
-window.addEventListener("load", () => {
-  const saved = sessionStorage.getItem("st_user");
-  if (saved) {
-    try {
-      currentUser = JSON.parse(saved);
-      isAdmin = sessionStorage.getItem("st_admin") === "1";
-      showApp();
-    } catch(e) { sessionStorage.clear(); showLoginScreen(); }
-  } else {
-    showLoginScreen();
-  }
+function signOut(){
+  sessionStorage.clear();currentUser=null;isAdmin=false;jobs=[];sel=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  backToEmail();
+}
+
+window.addEventListener('load',()=>{
+  const saved=sessionStorage.getItem('st_user');
+  if(saved){try{currentUser=JSON.parse(saved);isAdmin=sessionStorage.getItem('st_admin')==='1';showApp();}catch(e){sessionStorage.clear();}}
 });
 
-function showLoginScreen() {
-  document.getElementById("login-screen").style.display = "flex";
-  document.getElementById("app").style.display = "none";
+let keyBuffer='';
+document.addEventListener('keydown',e=>{
+  keyBuffer+=e.key;
+  if(keyBuffer.length>20)keyBuffer=keyBuffer.slice(-20);
+  if(keyBuffer.endsWith('admin')){keyBuffer='';openUnlock();}
+});
+
+function openUnlock(){document.getElementById('unlock-modal-bg').classList.add('open');document.getElementById('unlock-input').value='';document.getElementById('unlock-error').style.display='none';setTimeout(()=>document.getElementById('unlock-input').focus(),60);}
+function closeUnlock(){document.getElementById('unlock-modal-bg').classList.remove('open');}
+
+async function tryUnlock(){
+  const val=document.getElementById('unlock-input').value;
+  if(!val)return;
+  const btn=document.querySelector('#unlock-modal-bg .btn-p');
+  btn.textContent='Verifying…';btn.disabled=true;
+  try{
+    const result=await api({action:'verifyAdmin',password:val});
+    if(result.success){
+      isAdmin=true;sessionStorage.setItem('st_admin','1');closeUnlock();
+      document.getElementById('admin-pill').classList.add('show');
+      document.getElementById('add-job-btn').style.display='';
+      if(sel){const j=jobs.find(x=>x.id===sel);if(j)renderDetail(j);}
+      toast('Admin mode unlocked','ok');
+    }else{document.getElementById('unlock-error').style.display='block';document.getElementById('unlock-input').value='';document.getElementById('unlock-input').focus();}
+  }catch(e){toast('Error: '+e.message,'er');}
+  btn.textContent='Unlock';btn.disabled=false;
 }
 
-// ── API ───────────────────────────────────────────────────────────────────────
-async function api(params) {
-  const readActions = ['getJobs','deleteJob','removeDoc'];
-  // verifyAdmin goes through POST for security
-  if (readActions.includes(params.action)) {
-    const res = await fetch(API + '?' + new URLSearchParams(params).toString());
-    return res.json();
-  } else {
-    const res = await fetch(API, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(params) });
-    return res.json();
-  }
+function lockAdmin(){
+  isAdmin=false;sessionStorage.removeItem('st_admin');
+  document.getElementById('admin-pill').classList.remove('show');
+  document.getElementById('add-job-btn').style.display='none';
+  if(sel){const j=jobs.find(x=>x.id===sel);if(j)renderDetail(j);}
+  toast('Admin mode locked','wn');
 }
 
-async function loadJobs() {
-  setSyncState('loading', 'Syncing…');
-  try {
-    const data = await api({ action: 'getJobs' });
-    if (data.error) throw new Error(data.error);
-    jobs = data.jobs || [];
-    setSyncState('ok', 'Live — Google Sheets');
-    renderTable();
-    if (sel) { const j = jobs.find(x => x.id === sel); if (j) renderDetail(j); else clearDetail(); }
-  } catch(e) { setSyncState('err', 'Connection error'); toast('Could not load: ' + e.message, 'er'); }
+async function api(params){
+  const readActions=['getJobs','deleteJob','removeDoc'];
+  if(readActions.includes(params.action)){const res=await fetch(API+'?'+new URLSearchParams(params).toString());return res.json();}
+  else{const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(params)});return res.json();}
 }
 
-function setSyncState(state, txt) {
-  document.getElementById('sync-dot').className = 'sync-dot' + (state==='loading'?' loading':state==='err'?' err':'');
-  document.getElementById('sync-txt').textContent = txt;
-  document.getElementById('st-total').style.display = state==='ok' ? '' : 'none';
-  document.getElementById('st-miss').style.display  = state==='ok' ? '' : 'none';
+async function loadJobs(){
+  setSyncState('loading','Syncing…');
+  try{
+    const data=await api({action:'getJobs'});
+    if(data.error)throw new Error(data.error);
+    jobs=data.jobs||[];setSyncState('ok','Live — Google Sheets');renderTable();
+    if(sel){const j=jobs.find(x=>x.id===sel);if(j)renderDetail(j);else clearDetail();}
+  }catch(e){setSyncState('err','Connection error');toast('Could not load: '+e.message,'er');}
 }
 
-// ── Table ─────────────────────────────────────────────────────────────────────
-function docBadge(has, type) {
-  if (has) return `<span class="doc-ok ${type}"><svg viewBox="0 0 13 13"><polyline points="2,6.5 5,10 11,3"/></svg>${type==='slip'?'Slip':'BOL'}</span>`;
-  return `<span class="doc-ms"><svg viewBox="0 0 13 13"><line x1="6.5" y1="3.5" x2="6.5" y2="7.5"/><circle cx="6.5" cy="10" r=".8" fill="currentColor"/></svg>—</span>`;
+function setSyncState(state,txt){
+  document.getElementById('sync-dot').className='sync-dot'+(state==='loading'?' loading':state==='err'?' err':'');
+  document.getElementById('sync-txt').textContent=txt;
+  document.getElementById('st-total').style.display=state==='ok'?'':'none';
+  document.getElementById('st-miss').style.display=state==='ok'?'':'none';
 }
 
-function renderTable() {
-  const q  = document.getElementById('srch').value.toLowerCase();
-  const fd = document.getElementById('fSlip').value;
-  const ft = document.getElementById('fStat').value;
-  const filtered = jobs.filter(j => {
-    const mq = !q || j.id.toLowerCase().includes(q) || j.customer.toLowerCase().includes(q) || (j.po||'').toLowerCase().includes(q) || (j.sku||'').toLowerCase().includes(q);
-    const md = !fd || (fd==='slip'?!!j.slip:fd==='bol'?!!j.bol:(!j.slip||!j.bol));
-    const ms = !ft || j.status===ft;
+function docBadge(has,type){
+  if(has)return`<span class="doc-ok ${type}"><svg viewBox="0 0 13 13"><polyline points="2,6.5 5,10 11,3"/></svg>${type==='slip'?'Slip':'BOL'}</span>`;
+  return`<span class="doc-ms"><svg viewBox="0 0 13 13"><line x1="6.5" y1="3.5" x2="6.5" y2="7.5"/><circle cx="6.5" cy="10" r=".8" fill="currentColor"/></svg>—</span>`;
+}
+
+function renderTable(){
+  const q=document.getElementById('srch').value.toLowerCase();
+  const fd=document.getElementById('fSlip').value;
+  const ft=document.getElementById('fStat').value;
+  const filtered=jobs.filter(j=>{
+    const mq=!q||j.id.toLowerCase().includes(q)||j.customer.toLowerCase().includes(q)||(j.po||'').toLowerCase().includes(q)||(j.sku||'').toLowerCase().includes(q);
+    const md=!fd||(fd==='slip'?!!j.slip:fd==='bol'?!!j.bol:(!j.slip||!j.bol));
+    const ms=!ft||j.status===ft;
     return mq&&md&&ms;
   });
-  document.getElementById('lc').textContent = filtered.length+' job'+(filtered.length!==1?'s':'');
-  const tbody = document.getElementById('tbody');
-  const empty = document.getElementById('empty');
-  if (!filtered.length) { tbody.innerHTML=''; empty.style.display='block'; }
-  else {
+  document.getElementById('lc').textContent=filtered.length+' job'+(filtered.length!==1?'s':'');
+  const tbody=document.getElementById('tbody');
+  const empty=document.getElementById('empty');
+  if(!filtered.length){tbody.innerHTML='';empty.style.display='block';}
+  else{
     empty.style.display='none';
-    tbody.innerHTML = filtered.map(j => {
-      const encoded = encodeURIComponent(JSON.stringify(j));
-      return `<tr class="${sel===j.id?'sel':''}" onclick="selectJob('${esc(j.id)}',this)" data-j="${encoded}">
-        <td class="td-j">${esc(j.id)}</td>
-        <td>${esc(j.customer)}</td>
-        <td class="td-m">${esc(j.po||'—')}</td>
-        <td class="td-m">${fmtDate(j.received)}</td>
-        <td>${statusBadge(j.status)}</td>
-        <td>${docBadge(!!j.slip,'slip')}</td>
-        <td>${docBadge(!!j.bol,'bol')}</td>
+    tbody.innerHTML=filtered.map(j=>{
+      const encoded=encodeURIComponent(JSON.stringify(j));
+      return`<tr class="${sel===j.id?'sel':''}" onclick="selectJob('${esc(j.id)}',this)" data-j="${encoded}">
+        <td class="td-j">${esc(j.id)}</td><td>${esc(j.customer)}</td>
+        <td class="td-m">${esc(j.po||'—')}</td><td class="td-m">${fmtDate(j.received)}</td>
+        <td>${statusBadge(j.status)}</td><td>${docBadge(!!j.slip,'slip')}</td><td>${docBadge(!!j.bol,'bol')}</td>
       </tr>`;
     }).join('');
   }
-  const tot=jobs.length, ms=jobs.filter(j=>!j.slip).length, mb=jobs.filter(j=>!j.bol).length;
+  const tot=jobs.length,ms=jobs.filter(j=>!j.slip).length,mb=jobs.filter(j=>!j.bol).length;
   document.getElementById('st-total').innerHTML=`<b>${tot}</b> job${tot!==1?'s':''}`;
-  document.getElementById('st-miss').innerHTML=(ms||mb)
-    ?`<b style="color:var(--amber)">${ms}</b> slip${ms!==1?'s':''}, <b style="color:var(--amber)">${mb}</b> BOL${mb!==1?'s':''} missing`
-    :`<b style="color:var(--green)">All docs on file</b>`;
+  document.getElementById('st-miss').innerHTML=(ms||mb)?`<b style="color:var(--amber)">${ms}</b> slip${ms!==1?'s':''}, <b style="color:var(--amber)">${mb}</b> BOL${mb!==1?'s':''} missing`:`<b style="color:var(--green)">All docs on file</b>`;
 }
 
-function selectJob(id, row) {
-  sel = id;
-  document.querySelectorAll('#tbody tr').forEach(r => r.classList.remove('sel'));
-  if (row) row.classList.add('sel');
-  let j = jobs.find(x => x.id===id);
-  if (!j && row && row.dataset.j) { try { j = JSON.parse(decodeURIComponent(row.dataset.j)); } catch(e) {} }
-  if (j) renderDetail(j);
+function selectJob(id,row){
+  sel=id;document.querySelectorAll('#tbody tr').forEach(r=>r.classList.remove('sel'));if(row)row.classList.add('sel');
+  let j=jobs.find(x=>x.id===id);
+  if(!j&&row&&row.dataset.j){try{j=JSON.parse(decodeURIComponent(row.dataset.j));}catch(e){}}
+  if(j)renderDetail(j);
 }
 
-function clearDetail() {
-  sel = null;
-  document.getElementById('det-ph').style.display = 'block';
-  document.getElementById('det-panel').style.display = 'none';
+function clearDetail(){sel=null;document.getElementById('det-ph').style.display='block';document.getElementById('det-panel').style.display='none';}
+
+function docSection(j,type){
+  const label=type==='slip'?'Packing Slip':'Bill of Lading (BOL)';
+  const doc=type==='slip'?j.slip:j.bol;
+  const fileIcon=`<svg viewBox="0 0 16 16"><rect x="3" y="1" width="10" height="14" rx="1.5"/><polyline points="9,1 9,5 13,5"/><line x1="5.5" y1="8" x2="10.5" y2="8"/><line x1="5.5" y1="10.5" x2="10.5" y2="10.5"/></svg>`;
+  const uploadIcon=`<svg viewBox="0 0 24 24"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.4 17.7A5 5 0 0 0 18 8h-1.3A8 8 0 1 0 4 15.3"/></svg>`;
+  return`<div class="doc-sect"><span class="doc-tag ${type}">${label}</span>
+    ${doc?`<div class="file-row ${type}"><div class="file-ico ${type}">${fileIcon}</div>
+      <div style="flex:1;min-width:0;"><div class="fn">${esc(doc.name)}</div><div class="fd">Uploaded ${esc(doc.uploaded)}</div></div>
+      <button class="btn btn-sm" onclick="viewDoc('${esc(j.id)}','${type}')"><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="4"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>View</button>
+      <button class="btn btn-sm" onclick="dlDoc('${esc(j.id)}','${type}')" style="padding:0 8px;"><svg viewBox="0 0 14 14"><polyline points="3,7 7,11 11,7"/><line x1="7" y1="2" x2="7" y2="11"/><line x1="2" y1="13" x2="12" y2="13"/></svg></button>
+      ${isAdmin?`<button class="btn btn-sm btn-d" onclick="rmDoc('${esc(j.id)}','${type}')" style="padding:0 8px;"><svg viewBox="0 0 14 14"><polyline points="2,4 12,4"/><path d="M5,4V2.5a.5.5,0,0,1,.5-.5h3a.5.5,0,0,1,.5.5V4"/><path d="M3,4l.8,8.5a.5.5,0,0,0,.5.5h5.4a.5.5,0,0,0,.5-.5L11,4"/></svg></button>`:''}
+    </div>${isAdmin?`<p style="font-size:11px;color:var(--muted);margin-bottom:6px;">Replace:</p>`:''}`:''} 
+    ${isAdmin?`<div class="upzone" id="uz-${type}" onclick="document.getElementById('fi-${type}').click()" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="doDrop(event,'${esc(j.id)}','${type}')">${uploadIcon}<p>${doc?'Upload replacement':'Upload '+label}</p><span>PDF, JPG, or PNG</span></div>
+    <input type="file" id="fi-${type}" accept=".pdf,.jpg,.jpeg,.png" onchange="doFile(event,'${esc(j.id)}','${type}')">`:(!doc?`<div class="upzone-ro">No ${label} on file yet</div>`:'')}
+  </div>`;
 }
 
-// ── Detail ────────────────────────────────────────────────────────────────────
-function docSection(j, type) {
-  const label = type==='slip' ? 'Packing Slip' : 'Bill of Lading (BOL)';
-  const doc   = type==='slip' ? j.slip : j.bol;
-  const fileIcon = `<svg viewBox="0 0 16 16"><rect x="3" y="1" width="10" height="14" rx="1.5"/><polyline points="9,1 9,5 13,5"/><line x1="5.5" y1="8" x2="10.5" y2="8"/><line x1="5.5" y1="10.5" x2="10.5" y2="10.5"/></svg>`;
-  const uploadIcon = `<svg viewBox="0 0 24 24"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.4 17.7A5 5 0 0 0 18 8h-1.3A8 8 0 1 0 4 15.3"/></svg>`;
-  return `
-    <div class="doc-sect">
-      <span class="doc-tag ${type}">${label}</span>
-      ${doc ? `
-        <div class="file-row ${type}">
-          <div class="file-ico ${type}">${fileIcon}</div>
-          <div style="flex:1;min-width:0;">
-            <div class="fn">${esc(doc.name)}</div>
-            <div class="fd">Uploaded ${esc(doc.uploaded)}</div>
-          </div>
-          <button class="btn btn-sm" onclick="viewDoc('${esc(j.id)}','${type}')">
-            <svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="4"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>View
-          </button>
-          <button class="btn btn-sm" onclick="dlDoc('${esc(j.id)}','${type}')" style="padding:0 8px;" title="Download">
-            <svg viewBox="0 0 14 14"><polyline points="3,7 7,11 11,7"/><line x1="7" y1="2" x2="7" y2="11"/><line x1="2" y1="13" x2="12" y2="13"/></svg>
-          </button>
-          ${isAdmin ? `<button class="btn btn-sm btn-d" onclick="rmDoc('${esc(j.id)}','${type}')" style="padding:0 8px;"><svg viewBox="0 0 14 14"><polyline points="2,4 12,4"/><path d="M5,4V2.5a.5.5,0,0,1,.5-.5h3a.5.5,0,0,1,.5.5V4"/><path d="M3,4l.8,8.5a.5.5,0,0,0,.5.5h5.4a.5.5,0,0,0,.5-.5L11,4"/></svg></button>` : ''}
-        </div>
-        ${isAdmin ? `<p style="font-size:11px;color:var(--muted);margin-bottom:6px;">Replace:</p>` : ''}
-      ` : ''}
-      ${isAdmin ? `
-        <div class="upzone" id="uz-${type}"
-          onclick="document.getElementById('fi-${type}').click()"
-          ondragover="event.preventDefault();this.classList.add('over')"
-          ondragleave="this.classList.remove('over')"
-          ondrop="doDrop(event,'${esc(j.id)}','${type}')">
-          ${uploadIcon}
-          <p>${doc?'Upload replacement':'Upload '+label}</p>
-          <span>PDF, JPG, or PNG — drag & drop or click</span>
-        </div>
-        <input type="file" id="fi-${type}" accept=".pdf,.jpg,.jpeg,.png" onchange="doFile(event,'${esc(j.id)}','${type}')">
-      ` : (!doc ? `<div class="upzone-ro">No ${label} on file yet</div>` : '')}
-    </div>`;
+function renderDetail(j){
+  document.getElementById('det-ph').style.display='none';
+  const p=document.getElementById('det-panel');p.style.display='block';
+  p.innerHTML=`<div class="card-hd">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1.5" width="11" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="10.5" y2="5"/><line x1="4.5" y1="7.5" x2="10.5" y2="7.5"/><line x1="4.5" y1="10" x2="7.5" y2="10"/></svg>
+    <span class="card-title" style="font-family:var(--mono);font-size:12px;">${esc(j.id)}</span>
+    <span style="margin-left:auto;">${statusBadge(j.status)}</span></div>
+  <div class="meta-grid">
+    <div><div class="ml">Customer</div><div class="mv" style="font-size:12px;">${esc(j.customer)}</div></div>
+    <div><div class="ml">PO number</div><div class="mv mv-m">${esc(j.po||'—')}</div></div>
+    <div><div class="ml">SKU</div><div class="mv mv-m">${esc(j.sku||'—')}</div></div>
+    <div><div class="ml">Qty received</div><div class="mv">${j.qty?j.qty+' units':'—'}</div></div>
+    <div><div class="ml">Date received</div><div class="mv">${fmtDate(j.received)}</div></div>
+    ${j.notes?`<div style="grid-column:span 2"><div class="ml">Notes</div><div class="mv" style="white-space:normal;font-size:12px;">${esc(j.notes)}</div></div>`:''}
+  </div>
+  ${docSection(j,'slip')}${docSection(j,'bol')}
+  ${isAdmin?`<div class="det-acts">
+    <button class="btn btn-sm" onclick="openEdit('${esc(j.id)}')"><svg viewBox="0 0 14 14"><path d="M9.5,2.5l2,2-7,7H2.5v-2l7-7Z"/></svg>Edit</button>
+    <button class="btn btn-sm btn-d" style="margin-left:auto;" onclick="delJob('${esc(j.id)}')"><svg viewBox="0 0 14 14"><polyline points="2,4 12,4"/><path d="M5,4V2.5a.5.5,0,0,1,.5-.5h3a.5.5,0,0,1,.5.5V4"/><path d="M3,4l.8,8.5a.5.5,0,0,0,.5.5h5.4a.5.5,0,0,0,.5-.5L11,4"/></svg>Delete</button>
+  </div>`:''}`;
 }
 
-function renderDetail(j) {
-  document.getElementById('det-ph').style.display = 'none';
-  const p = document.getElementById('det-panel');
-  p.style.display = 'block';
-  p.innerHTML = `
-    <div class="card-hd">
-      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1.5" width="11" height="12" rx="1.5"/><line x1="4.5" y1="5" x2="10.5" y2="5"/><line x1="4.5" y1="7.5" x2="10.5" y2="7.5"/><line x1="4.5" y1="10" x2="7.5" y2="10"/></svg>
-      <span class="card-title" style="font-family:var(--mono);font-size:12px;">${esc(j.id)}</span>
-      <span style="margin-left:auto;">${statusBadge(j.status)}</span>
-    </div>
-    <div class="meta-grid">
-      <div><div class="ml">Customer</div><div class="mv" style="font-size:12px;">${esc(j.customer)}</div></div>
-      <div><div class="ml">PO number</div><div class="mv mv-m">${esc(j.po||'—')}</div></div>
-      <div><div class="ml">SKU</div><div class="mv mv-m">${esc(j.sku||'—')}</div></div>
-      <div><div class="ml">Qty received</div><div class="mv">${j.qty?j.qty+' units':'—'}</div></div>
-      <div><div class="ml">Date received</div><div class="mv">${fmtDate(j.received)}</div></div>
-      ${j.notes?`<div style="grid-column:span 2"><div class="ml">Notes</div><div class="mv" style="white-space:normal;font-size:12px;">${esc(j.notes)}</div></div>`:''}
-    </div>
-    ${docSection(j,'slip')}
-    ${docSection(j,'bol')}
-    ${isAdmin ? `
-    <div class="det-acts">
-      <button class="btn btn-sm" onclick="openEdit('${esc(j.id)}')">
-        <svg viewBox="0 0 14 14"><path d="M9.5,2.5l2,2-7,7H2.5v-2l7-7Z"/></svg>Edit
-      </button>
-      <button class="btn btn-sm btn-d" style="margin-left:auto;" onclick="delJob('${esc(j.id)}')">
-        <svg viewBox="0 0 14 14"><polyline points="2,4 12,4"/><path d="M5,4V2.5a.5.5,0,0,1,.5-.5h3a.5.5,0,0,1,.5.5V4"/><path d="M3,4l.8,8.5a.5.5,0,0,0,.5.5h5.4a.5.5,0,0,0,.5-.5L11,4"/></svg>Delete
-      </button>
-    </div>` : ''}`;
-}
-
-// ── File upload ───────────────────────────────────────────────────────────────
 function doFile(ev,id,type){const f=ev.target.files[0];if(f)attach(id,f,type);}
 function doDrop(ev,id,type){ev.preventDefault();document.getElementById('uz-'+type)?.classList.remove('over');const f=ev.dataTransfer.files[0];if(f)attach(id,f,type);}
 
 async function attach(id,file,docType){
   if(!isAdmin){toast('View only','wn');return;}
   const ok=['application/pdf','image/jpeg','image/png','image/jpg'];
-  if(!ok.includes(file.type)){toast('Only PDF, JPG, or PNG supported','wn');return;}
+  if(!ok.includes(file.type)){toast('Only PDF, JPG, or PNG','wn');return;}
   const uz=document.getElementById('uz-'+docType);
-  if(uz)uz.innerHTML=`<div class="uploading"><div class="spin"></div>Uploading to Google Drive…</div>`;
+  if(uz)uz.innerHTML=`<div class="uploading"><div class="spin"></div>Uploading…</div>`;
   try{
     const b64=await toBase64(file);
-    const result=await api({action:'uploadDoc',token:adminToken,id,docType,data:b64.split(',')[1],mimeType:file.type,filename:file.name});
+    const result=await api({action:'uploadDoc',id,docType,data:b64.split(',')[1],mimeType:file.type,filename:file.name});
     if(result.error)throw new Error(result.error);
-    toast((docType==='slip'?'Packing slip':'BOL')+' uploaded for '+id,'ok');
-    await loadJobs();
+    toast((docType==='slip'?'Packing slip':'BOL')+' uploaded','ok');await loadJobs();
   }catch(e){toast('Upload failed: '+e.message,'er');await loadJobs();}
 }
 
 function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=()=>rej(new Error('Read failed'));r.readAsDataURL(file);});}
-
-function viewDoc(id,docType){
-  const j=jobs.find(x=>x.id===id);if(!j)return;
-  const doc=docType==='slip'?j.slip:j.bol;
-  if(doc)window.open('https://drive.google.com/file/d/'+doc.fileId+'/view','_blank');
-}
-
-function dlDoc(id,docType){
-  const j=jobs.find(x=>x.id===id);if(!j)return;
-  const doc=docType==='slip'?j.slip:j.bol;
-  if(doc)window.open('https://drive.google.com/uc?export=download&id='+doc.fileId,'_blank');
-}
+function viewDoc(id,docType){const j=jobs.find(x=>x.id===id);if(!j)return;const doc=docType==='slip'?j.slip:j.bol;if(doc)window.open('https://drive.google.com/file/d/'+doc.fileId+'/view','_blank');}
+function dlDoc(id,docType){const j=jobs.find(x=>x.id===id);if(!j)return;const doc=docType==='slip'?j.slip:j.bol;if(doc)window.open('https://drive.google.com/uc?export=download&id='+doc.fileId,'_blank');}
 
 async function rmDoc(id,docType){
   if(!isAdmin){toast('View only','wn');return;}
   if(!confirm('Remove the '+(docType==='slip'?'packing slip':'BOL')+' for '+id+'?'))return;
-  try{
-    const result=await api({action:'removeDoc',token:adminToken,id,docType});
-    if(result.error)throw new Error(result.error);
-    toast('Document removed','wn');await loadJobs();
-  }catch(e){toast('Error: '+e.message,'er');}
+  try{const result=await api({action:'removeDoc',id,docType});if(result.error)throw new Error(result.error);toast('Document removed','wn');await loadJobs();}
+  catch(e){toast('Error: '+e.message,'er');}
 }
 
-// ── Add / Edit ────────────────────────────────────────────────────────────────
 function openAdd(){
-  if(!isAdmin)return;
-  editId=null;
+  if(!isAdmin)return;editId=null;
   document.getElementById('modal-ttl').textContent='Add inventory job';
   document.getElementById('modal-save').textContent='Add job';
   document.getElementById('modal-save').onclick=doAdd;
   ['fId','fCust','fPo','fSku','fNotes'].forEach(x=>document.getElementById(x).value='');
-  document.getElementById('fQty').value='';
-  document.getElementById('fDate').value=new Date().toISOString().slice(0,10);
-  document.getElementById('fStatus').value='In storage';
-  document.getElementById('fId').disabled=false;
-  document.getElementById('modal').classList.add('open');
-  setTimeout(()=>document.getElementById('fId').focus(),60);
+  document.getElementById('fQty').value='';document.getElementById('fDate').value=new Date().toISOString().slice(0,10);
+  document.getElementById('fStatus').value='In storage';document.getElementById('fId').disabled=false;
+  document.getElementById('modal').classList.add('open');setTimeout(()=>document.getElementById('fId').focus(),60);
 }
 
 function openEdit(id){
-  if(!isAdmin)return;
-  const j=jobs.find(x=>x.id===id);if(!j)return;
-  editId=id;
-  document.getElementById('modal-ttl').textContent='Edit job';
-  document.getElementById('modal-save').textContent='Save changes';
-  document.getElementById('modal-save').onclick=doEdit;
-  document.getElementById('fId').value=j.id;document.getElementById('fId').disabled=true;
-  document.getElementById('fCust').value=j.customer||'';
-  document.getElementById('fPo').value=j.po||'';
-  document.getElementById('fSku').value=j.sku||'';
-  document.getElementById('fQty').value=j.qty||'';
-  document.getElementById('fDate').value=j.received||'';
-  document.getElementById('fStatus').value=j.status||'In storage';
-  document.getElementById('fNotes').value=j.notes||'';
-  document.getElementById('modal').classList.add('open');
+  if(!isAdmin)return;const j=jobs.find(x=>x.id===id);if(!j)return;editId=id;
+  document.getElementById('modal-ttl').textContent='Edit job';document.getElementById('modal-save').textContent='Save changes';
+  document.getElementById('modal-save').onclick=doEdit;document.getElementById('fId').value=j.id;document.getElementById('fId').disabled=true;
+  document.getElementById('fCust').value=j.customer||'';document.getElementById('fPo').value=j.po||'';
+  document.getElementById('fSku').value=j.sku||'';document.getElementById('fQty').value=j.qty||'';
+  document.getElementById('fDate').value=j.received||'';document.getElementById('fStatus').value=j.status||'In storage';
+  document.getElementById('fNotes').value=j.notes||'';document.getElementById('modal').classList.add('open');
 }
 
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 
 async function doAdd(){
   if(!isAdmin)return;
-  const id=document.getElementById('fId').value.trim();
-  const customer=document.getElementById('fCust').value.trim();
+  const id=document.getElementById('fId').value.trim();const customer=document.getElementById('fCust').value.trim();
   if(!id||!customer){toast('Job number and customer are required','wn');return;}
-  const btn=document.getElementById('modal-save');
-  btn.textContent='Saving…';btn.disabled=true;
+  const btn=document.getElementById('modal-save');btn.textContent='Saving…';btn.disabled=true;
   try{
-    const result=await api({action:'addJob',token:adminToken,id,customer,po:document.getElementById('fPo').value.trim(),sku:document.getElementById('fSku').value.trim(),qty:document.getElementById('fQty').value||0,received:document.getElementById('fDate').value,status:document.getElementById('fStatus').value,notes:document.getElementById('fNotes').value.trim()});
+    const result=await api({action:'addJob',id,customer,po:document.getElementById('fPo').value.trim(),sku:document.getElementById('fSku').value.trim(),qty:document.getElementById('fQty').value||0,received:document.getElementById('fDate').value,status:document.getElementById('fStatus').value,notes:document.getElementById('fNotes').value.trim()});
     if(result.error)throw new Error(result.error);
-    closeModal();toast('Job '+id+' added','ok');
-    await loadJobs();sel=id;renderTable();
+    closeModal();toast('Job '+id+' added','ok');await loadJobs();sel=id;renderTable();
     const j=jobs.find(x=>x.id===id);if(j)renderDetail(j);
   }catch(e){toast('Error: '+e.message,'er');}
   btn.textContent='Add job';btn.disabled=false;
 }
 
 async function doEdit(){
-  if(!isAdmin)return;
-  const btn=document.getElementById('modal-save');
-  btn.textContent='Saving…';btn.disabled=true;
+  if(!isAdmin)return;const btn=document.getElementById('modal-save');btn.textContent='Saving…';btn.disabled=true;
   try{
-    const result=await api({action:'updateJob',token:adminToken,id:editId,customer:document.getElementById('fCust').value.trim(),po:document.getElementById('fPo').value.trim(),sku:document.getElementById('fSku').value.trim(),qty:document.getElementById('fQty').value||0,received:document.getElementById('fDate').value,status:document.getElementById('fStatus').value,notes:document.getElementById('fNotes').value.trim()});
-    if(result.error)throw new Error(result.error);
-    closeModal();toast('Job updated','ok');await loadJobs();
+    const result=await api({action:'updateJob',id:editId,customer:document.getElementById('fCust').value.trim(),po:document.getElementById('fPo').value.trim(),sku:document.getElementById('fSku').value.trim(),qty:document.getElementById('fQty').value||0,received:document.getElementById('fDate').value,status:document.getElementById('fStatus').value,notes:document.getElementById('fNotes').value.trim()});
+    if(result.error)throw new Error(result.error);closeModal();toast('Job updated','ok');await loadJobs();
   }catch(e){toast('Error: '+e.message,'er');}
   btn.textContent='Save changes';btn.disabled=false;
 }
 
 async function delJob(id){
-  if(!isAdmin)return;
-  if(!confirm('Delete job '+id+'? This cannot be undone.'))return;
-  try{
-    const result=await api({action:'deleteJob',token:adminToken,id});
-    if(result.error)throw new Error(result.error);
-    clearDetail();toast('Job '+id+' deleted','wn');await loadJobs();
-  }catch(e){toast('Error: '+e.message,'er');}
+  if(!isAdmin)return;if(!confirm('Delete job '+id+'? This cannot be undone.'))return;
+  try{const result=await api({action:'deleteJob',id});if(result.error)throw new Error(result.error);clearDetail();toast('Job '+id+' deleted','wn');await loadJobs();}
+  catch(e){toast('Error: '+e.message,'er');}
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function statusBadge(s){
   if(s==='In storage')return`<span class="badge bg-g"><span class="bdot"></span>${s}</span>`;
   if(s==='Partial out')return`<span class="badge bg-a"><span class="bdot"></span>${s}</span>`;
@@ -742,11 +584,9 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function fmtDate(d){if(!d)return'—';try{return new Date(d+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}catch{return d;}}
 function toast(msg,type){
   const icons={ok:'<polyline points="2.5,7.5 6,11 12.5,4"/>',wn:'<line x1="7.5" y1="4" x2="7.5" y2="8.5"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/>',er:'<line x1="3" y1="3" x2="12" y2="12"/><line x1="12" y1="3" x2="3" y2="12"/>'};
-  const el=document.createElement('div');
-  el.className='toast'+(type?' '+type:'');
+  const el=document.createElement('div');el.className='toast'+(type?' '+type:'');
   el.innerHTML=`<svg viewBox="0 0 15 15">${icons[type]||icons.wn}</svg>${esc(msg)}`;
-  document.getElementById('toasts').appendChild(el);
-  setTimeout(()=>el.remove(),3500);
+  document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),3500);
 }
 
 document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
