@@ -273,8 +273,7 @@ input[type=file]{display:none;}
 const API='https://script.google.com/macros/s/AKfycbzg8qSWzrfX60IiybWWWWeu212R2P7om0Oywale1dYN5gpDXOqWnmRn4iauG5NxpvK5/exec';
 const ALLOWED_DOMAIN='moquinpress.com';
 const ADMIN_EMAIL='shipping@moquinpress.com';
-let jobs=[],sel=null,editId=null,isAdmin=false,currentUser=null;
-let otpEmail=null;
+let jobs=[],sel=null,editId=null,isAdmin=false,currentUser=null,otpEmail=null;
 
 async function sendCode(){
   const email=document.getElementById('email-input').value.trim().toLowerCase();
